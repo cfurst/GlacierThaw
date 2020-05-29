@@ -1,25 +1,35 @@
 import boto3
 import sys
 
-def doesExist(bucket, key):
+
+s3 = boto3.client('s3')
+def getMetadata(bucket, key):
     """
     returns true when there is metadata available for the object
     """
-    s3 = boto3.client('s3')
     try:
         metadata = s3.head_object(Bucket=bucket, Key=key)
     except:
         print('error encountered getting {key} from {bucket}: {error}'.format(key=key, bucket=bucket, error=sys.exc_info()))
-        return False
-    return True
+        return None
+    return metadata
 
-bucket = sys.argv[1]
-key = sys.argv[2]
-print("bucket: {bucket}, key: {key}".format(bucket=bucket, key=key))
-exists = doesExist(bucket, key)
+def getObjectList(bucket, key):
+    """
+    will return the first level of stuff in the key
+    """
+    
+try:
+    bucket = sys.argv[1]
+    key = None
+    if len(sys.argv) >= 3:
+        key = sys.argv[2]
+    print("bucket: {bucket}, key: {key}".format(bucket=bucket, key=key))
+    
+    
 
-if exists:
-    print ("Yes {key} exists in {bucket}".format(key=key, bucket=bucket))
-else:
-    print ("I guess {key} doesn't exist in {bucket}".format(key=key, bucket=bucket))
+except IndexError:
+    print('Invalid Arguments! I need a bucket')
+
+
 
