@@ -21,6 +21,10 @@ def getMetadata(bucket, key):
 
     
 def makeGlacierRequest(awsObject, source_bucket, tier=DEFAULT_TIER, numberOfDaysAvailable=DEFAULT_NUMBER_OF_DAYS_AVAILABLE, destinationBucket='', destinationPrefix=''):
+    """
+    Creates a glacier request for a deafult period of 14 days
+    """
+    # TODO: implement destination bucket and prefix.
     try: 
         restore_request = {
             'GlacierJobParameters': {
