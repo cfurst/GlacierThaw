@@ -8,6 +8,8 @@ Any changes to this software under the MIT License terms does not terminate the 
 
 ## Synopsis:
 ```python
-python GlacierThaw <BucketName> [Prefix or key]
+python GlacierThaw <Bucket> [Prefix or key]
 ```
-will create a bulk request to move all objects with `Prefix` or file with name `key` from the glacier storage tier temporarily for 14 days.
+will create a bulk request to move all objects in `Bucket` with `Prefix` or file with name `key` from the glacier storage tier temporarily for 14 days.
+
+If you leave out a prefix or key, it will make a request for all objects in the bucket. Please use carefully.
