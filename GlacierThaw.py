@@ -20,7 +20,7 @@ def getMetadata(bucket, key):
     
 
     
-def makeGlacierRequest(awsObject, sourceBucket, tier=DEFAULT_TIER, numberOfDaysAvailable=DEFAULT_NUMBER_OF_DAYS_AVAILABLE, destinationBucket='', destinationPrefix=''):
+def makeGlacierRequest(awsObject, source_bucket, tier=DEFAULT_TIER, numberOfDaysAvailable=DEFAULT_NUMBER_OF_DAYS_AVAILABLE, destinationBucket='', destinationPrefix=''):
     try: 
         restore_request = {
             'GlacierJobParameters': {
@@ -28,26 +28,30 @@ def makeGlacierRequest(awsObject, sourceBucket, tier=DEFAULT_TIER, numberOfDaysA
             },
             'Days': numberOfDaysAvailable,
         }
-        s3.restore_object(Bucket=bucket, Key=awsObject['Key'], RestoreRequest=restore_request)
+        s3.restore_object(Bucket=source_bucket, Key=awsObject['Key'], RestoreRequest=restore_request)
     except s3.exceptions.ObjectAlreadyInActiveTierError as e:
-        print("Couldn't restore:", awsObject['Key'], e)
+        print("Couldn't restore:", awsObject['Key'], " possibly already restored...")
     
 def main():
     try:
-        bucket = sys.argv[1]
+        bucket = sys.argv[1].strip()
         key = None
         if len(sys.argv) >= 3:
-            key = sys.argv[2]
+            key = sys.argv[2].strip()
         print("bucket: ", bucket, "key: ", key)
         if not key:
             key = ''
-        paginator.paginate(Bucket=bucket, Prefix=key)
-        for page in paginator:
+        object_iter = paginator.paginate(Bucket=bucket, Prefix=key)
+    
+        for page in object_iter:
             for awsObject in page['Contents']:
                 if awsObject['StorageClass'] == 'GLACIER':
-                    makeGlacierRequest(awsObject, bucket)
+                  makeGlacierRequest(awsObject, bucket)
+                  print(awsObject['Key'], " will be restored for 14 days.")
     except IndexError:
         print('Invalid Arguments! I need a bucket at least')
-
+    except KeyError:
+        print('prefix: {} did not return any objects.'.format(key))
+    
 if __name__ == '__main__':
     main()
