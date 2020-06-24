@@ -20,7 +20,7 @@ If you leave out the `prefix or key` option, it will make a request for all obje
 
 Once the transfer request has been expedited, your files will be ready to view. The timing as to when the request completes depends on what type of request you make using the `--request-tier` option (default is `Bulk`). You can find out more about the type of Glacier restore requests and their timing [here](https://docs.aws.amazon.com/AmazonS3/latest/dev/restoring-objects.html#restoring-objects-retrieval-options).
 
-If you go to the console and select a file that was transfered from the Glacier teir, you will see that you can now open the file and download it. You should see a `Restore Expiration` date and time when viewing the file's details. You will be able to download the file until that date, after which the file will be returned to the Glacier storage tier.
+If you go to the console and select a file that was transfered from the Glacier tier, you will see that you can now open the file and download it. You should see a `Restore Expiration` date and time when viewing the file's details. You will be able to download the file until that date, after which the file will be returned to the Glacier storage tier.
 
 **AWS CLI**
 
