@@ -6,6 +6,15 @@ By downloading and using this software you hereby indemnify the author and all c
 
 Any changes to this software under the MIT License terms does not terminate the License terms nor the indemnity heretofore described. 
 
+## Installation:
+
+This project is not yet released so you basically clone it and then use `pip` to install `boto3`, the AWS sdk for python.
+
+```bash
+$ git clone https://github.com/cfurst/GlacierThaw.git
+$ pip install boto3
+```
+
 ## Synopsis:
 ```python
 python GlacierThaw.py [-h] [--prefix PREFIX] [--request-tier {Bulk,Standard,Expedited}] [--duration DURATION] bucket
