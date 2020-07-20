@@ -17,11 +17,20 @@ $ pip install boto3
 
 ## Synopsis:
 ```python
-python GlacierThaw.py [-h] [--prefix PREFIX] [--request-tier {Bulk,Standard,Expedited}] [--duration DURATION] bucket
+python GlacierThaw.py [-h] --bucket BUCKET [--prefix PREFIX] [--request-tier {Bulk,Standard,Expedited}]
+                      [--duration DURATION] [--queue-name QUEUE_NAME]
 ```
-will create a bulk request to move all objects in `Bucket` with `Prefix` or file with name `key` from the glacier storage tier to standard tier temporarily for `DURATION` number of days, defaults to 14.
+Will create a bulk request to move all objects in `BUCKET` with `PREFIX` from the glacier storage tier to standard tier temporarily for `DURATION` number of days, defaults to 14.
 
-If you leave out the `prefix or key` option, it will make a request for all objects in the bucket. Please use carefully.
+If you leave out the `PREFIX` option, it will make a request for all objects in the bucket. Please use carefully.
+
+If you wish to just make a request for one file you can specify the prefix as the file name. In this case, since its only one file you might want to expedite the request:
+
+```bash
+$ python GlacierThaw.py --bucket bucket_name --prefix path/to/file.txt --request-tier Expedite
+```
+Please review the AWS S3 documentation for more information about the limitations and capabilities of expedited requests.
+
 
 ## Retreiving files from s3
 
@@ -43,4 +52,4 @@ You will need the `--force-glacier-transfer` option because of an issue with the
 
 **Restoring an object to the standard storage tier**
 
-If you want to move an object out of Glacier and back into the standard tier (or any other storage tier, really) you can review [this blog post](https://aws.amazon.com/premiumsupport/knowledge-center/restore-s3-object-glacier-storage-class/) for more information. You basically have to use a method of s3 copying to basically copy the file in place.
+If you want to move an object out of Glacier and back into the standard tier (or any other storage tier, really) you can review [this blog post](https://aws.amazon.com/premiumsupport/knowledge-center/restore-s3-object-glacier-storage-class/) for more information. You basically have to use a method of s3 copying to basically copy the file in place. Via the api, you can use Meta-data to set the storage tier, see the AWS S3 documentation for more information.
