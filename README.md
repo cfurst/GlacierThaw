@@ -31,6 +31,28 @@ $ python GlacierThaw.py --bucket bucket_name --prefix path/to/file.txt --request
 ```
 Please review the AWS S3 documentation for more information about the limitations and capabilities of expedited requests.
 
+**Options**
+```
+ -h, --help            show this help message and exit
+  --bucket BUCKET       The name of the s3 bucket that is to be the root of your request. Ex. if your files live at
+                        s3://my-awesome-bucket/foo/bar the bucket name would be 'my-awsome-bucket'
+  --prefix PREFIX       A prefix or key to use as the base URL for your request. Ex. if your files live in the
+                        'foo/bar' directory, then 'foo/bar' is the prefix. If you want to just request one file to be
+                        moved, use the path of the file as the prefix Ex. foo/bar/myFile.txt. If you leave out a
+                        prefix, you will make a request for the entire bucket. Please be careful. Ctrl-C is your
+                        friend.
+  --request-tier {Bulk,Standard,Expedited}
+                        The type of glacier request you would like to make, Choices are 'Standard', 'Expedited' and
+                        'Bulk' (default). Each has purposes and limitations, please consult the AWS documentation for
+                        more information
+  --duration DURATION   The number of days you wish to have the object available before being returned to Glacier
+                        storage; defaults to two weeks.
+  --queue-name QUEUE_NAME
+                        The name of the queue you have set up to receive restore notifications. Only one message per
+                        request will be displayed. It is recommended to just use the Object Restore notification. If
+                        you configure your bucket to send 'Restore initiated' and 'Restore complete' messages, you
+                        might not get both read for every object
+```
 
 ## Retreiving files from s3
 
