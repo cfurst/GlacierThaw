@@ -32,6 +32,7 @@ $ python GlacierThaw.py --bucket bucket_name --prefix path/to/file.txt --request
 Please review the AWS S3 documentation for more information about the limitations and capabilities of expedited requests.
 
 **Options**
+
 ```
  -h, --help            show this help message and exit
   --bucket BUCKET       The name of the s3 bucket that is to be the root of your request. Ex. if your files live at
