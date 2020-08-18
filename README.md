@@ -12,13 +12,26 @@ This project is not yet released so you basically clone it and then use `pip` to
 
 ```bash
 $ git clone https://github.com/cfurst/GlacierThaw.git
-$ pip install boto3
+$ pip install -r requriements.txt
 ```
 
 ## Synopsis:
 ```python
-python GlacierThaw.py [-h] --bucket BUCKET [--prefix PREFIX] [--request-tier {Bulk,Standard,Expedited}]
-                      [--duration DURATION] [--queue-name QUEUE_NAME]
+usage: GlacierThaw.py [-h] --bucket BUCKET [--prefix PREFIX] [--request-tier {Bulk,Standard,Expedited}] [--duration DURATION] [--queue-name QUEUE_NAME] [--restore-to-tier {STANDARD,REDUCED_REDUNDANCY,STANDARD_IA,ONEZONE_IA,INTELLIGENT_TIERING,GLACIER,DEEP_ARCHIVE}]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --bucket BUCKET       The name of the s3 bucket that is to be the root of your request. Ex. if your files live at s3://my-awesome-bucket/foo/bar the bucket name would be 'my-awsome-bucket'
+  --prefix PREFIX       A prefix or key to use as the base URL for your request. Ex. if your files live in the 'foo/bar' directory, then 'foo/bar' is the prefix. If you want to just request one file to be moved, use the path of the file as the prefix Ex.
+                        foo/bar/myFile.txt. If you leave out a prefix, you will make a request for the entire bucket. Please be careful. Ctrl-C is your friend.
+  --request-tier {Bulk,Standard,Expedited}
+                        The type of glacier request you would like to make, Choices are 'Standard', 'Expedited' and 'Bulk' (default). Each has purposes and limitations, please consult the AWS documentation for more information
+  --duration DURATION   The number of days you wish to have the object available before being returned to Glacier storage; defaults to two weeks.
+  --queue-name QUEUE_NAME
+                        The name of the queue you have set up to receive restore notifications. Only one message per request will be displayed. It is recommended to just use the Object Restore notification. If you configure your bucket to send 'Restore initiated' and
+                        'Restore complete' messages, you might not get both read for every object
+  --restore-to-tier {STANDARD,REDUCED_REDUNDANCY,STANDARD_IA,ONEZONE_IA,INTELLIGENT_TIERING,GLACIER,DEEP_ARCHIVE}
+                        Permanently transfer all objects restored to this storage tier. You need to specify a queue name to use this by setting '--queue-name'
 ```
 Will create a bulk request to move all objects in `BUCKET` with `PREFIX` from the glacier storage tier to standard tier temporarily for `DURATION` number of days, defaults to 14.
 
@@ -31,29 +44,8 @@ $ python GlacierThaw.py --bucket bucket_name --prefix path/to/file.txt --request
 ```
 Please review the AWS S3 documentation for more information about the limitations and capabilities of expedited requests.
 
-**Options**
 
-```
- -h, --help            show this help message and exit
-  --bucket BUCKET       The name of the s3 bucket that is to be the root of your request. Ex. if your files live at
-                        s3://my-awesome-bucket/foo/bar the bucket name would be 'my-awsome-bucket'
-  --prefix PREFIX       A prefix or key to use as the base URL for your request. Ex. if your files live in the
-                        'foo/bar' directory, then 'foo/bar' is the prefix. If you want to just request one file to be
-                        moved, use the path of the file as the prefix Ex. foo/bar/myFile.txt. If you leave out a
-                        prefix, you will make a request for the entire bucket. Please be careful. Ctrl-C is your
-                        friend.
-  --request-tier {Bulk,Standard,Expedited}
-                        The type of glacier request you would like to make, Choices are 'Standard', 'Expedited' and
-                        'Bulk' (default). Each has purposes and limitations, please consult the AWS documentation for
-                        more information
-  --duration DURATION   The number of days you wish to have the object available before being returned to Glacier
-                        storage; defaults to two weeks.
-  --queue-name QUEUE_NAME
-                        The name of the queue you have set up to receive restore notifications. Only one message per
-                        request will be displayed. It is recommended to just use the Object Restore notification. If
-                        you configure your bucket to send 'Restore initiated' and 'Restore complete' messages, you
-                        might not get both read for every object
-```
+For accurate notifications from your queue, it is recommended that you use a dedicated queue for this purpose and have the queue be the only queue your bucket writes to. The queue implementation is still beta, YMMV.
 
 ## Retreiving files from s3
 
@@ -76,3 +68,7 @@ You will need the `--force-glacier-transfer` option because of an issue with the
 **Restoring an object to the standard storage tier**
 
 If you want to move an object out of Glacier and back into the standard tier (or any other storage tier, really) you can review [this blog post](https://aws.amazon.com/premiumsupport/knowledge-center/restore-s3-object-glacier-storage-class/) for more information. You basically have to use a method of s3 copying to basically copy the file in place. Via the api, you can use Meta-data to set the storage tier, see the AWS S3 documentation for more information.
+
+**Restoring an object to an alternate storage tier using GlacierThaw**
+
+If you like you can use the `--restore-to-tier` option to move your restored glacier object to an alternative storage tier. To do this you will need to set up a queue in the same region that you created your bucket. Once the queue is set up, make sure you configure your bucket to send *restore complete* notifications to the queue. `GlacierThaw` will read from the queue and copy the file in place using the new storage tier as specified in the above blog post. Make sure you specify the name of the queue using the `--queue-name` option.
