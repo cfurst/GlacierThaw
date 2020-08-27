@@ -72,3 +72,29 @@ If you want to move an object out of Glacier and back into the standard tier (or
 **Restoring an object to an alternate storage tier using GlacierThaw**
 
 If you like you can use the `--restore-to-tier` option to move your restored glacier object to an alternative storage tier. To do this you will need to set up a queue in the same region that you created your bucket. Once the queue is set up, make sure you configure your bucket to send *restore complete* notifications to the queue. `GlacierThaw` will read from the queue and copy the file in place using the new storage tier as specified in the above blog post. Make sure you specify the name of the queue using the `--queue-name` option.
+
+## Examples
+Like the above make a request for one file using the expedited request tier:
+
+```bash
+$ python GlacierThaw.py --bucket bucket_name --prefix path/to/file.txt --request-tier Expedite
+```
+
+Make a request for a directory and have notifications of restoration printed to STDOUT:
+
+```bash
+ $ python GlacierThaw.py --bucket bucket_name --prefix path/to/directory --queue-name my-notification-sqs-queue
+ ```
+ This will make a request for every file in `path/to/directory` and display a notification when the individual files are ready.
+ 
+ **Note:** You need to have the `Restore Complete` event configured on your bucket to send notifications to `my-notification-sqs-queue`. It is recommended that you use an sqs-queue dedicated for this purpose. We do not support FIFO queues at the moment. 
+ 
+ Make a request to have a file removed from Glacier and transfered back to `STANDARD` storage class:
+ 
+ ```bash
+ $ python GlacierThaw.py --bucket bucket_name --prefix path/to/file.txt --request-tier Expedite --queue-name my-notification-queue --restore-to-tier STANDARD
+```
+
+The script will crash if you provide a `--restore-to-tier` option without a `--queue-name` option.
+
+Please keep in mind that while your file is restored, you will be paying double for the storage. You pay for the Glacier and for the temporary Standard storage tiers. Please see the [S3 pricing documentation page](https://aws.amazon.com/s3/pricing) for further information on Glacier pricing.
